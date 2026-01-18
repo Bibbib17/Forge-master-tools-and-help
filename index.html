@@ -1,50 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idle Forge Master</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forge Master DPS (Modern)</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="app">
-  <header>
-    <h1>Idle Forge Master</h1>
-    <button id="prestigeBtn">Prestige</button>
-  </header>
-
-  <main>
-    <section class="stats">
-      <div class="stat">
-        <div class="label">Coins</div>
-        <div id="coins">0</div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>Forge Master DPS</h1>
+          <p>Modern UI version</p>
+        </div>
       </div>
-      <div class="stat">
-        <div class="label">EXP</div>
-        <div id="exp">0</div>
-      </div>
-      <div class="stat">
-        <div class="label">Prestige</div>
-        <div id="prestige">0</div>
-      </div>
-    </section>
 
-    <section class="upgrades">
-      <h2>Upgrades</h2>
-      <div id="upgradeList"></div>
-    </section>
+      <button id="themeBtn" class="btn secondary">Toggle Theme</button>
+    </header>
 
-    <section class="panel">
-      <h2>Achievements</h2>
-      <div id="achievements"></div>
-    </section>
-  </main>
+    <main class="main">
+      <section class="card">
+        <h2 class="sectionTitle">Inputs</h2>
 
-  <footer>
-    <p>Auto-save every 10 seconds • Offline progress supported</p>
-  </footer>
-</div>
+        <div class="grid">
+          <div class="field">
+            <label>Base Damage</label>
+            <input id="damage" type="number" placeholder="e.g. 100" />
+          </div>
 
-<script src="app.js"></script>
+          <div class="field">
+            <label>Attack Speed (%)</label>
+            <input id="atkSpeed" type="number" placeholder="e.g. 100" />
+          </div>
+
+          <div class="field">
+            <label>Crit Chance (%)</label>
+            <input id="critChance" type="number" placeholder="e.g. 10" />
+          </div>
+
+          <div class="field">
+            <label>Crit Damage (%)</label>
+            <input id="critDamage" type="number" placeholder="e.g. 50" />
+          </div>
+
+          <div class="field">
+            <label>Double Chance (%)</label>
+            <input id="doubleChance" type="number" placeholder="e.g. 20" />
+          </div>
+        </div>
+
+        <button id="calcBtn" class="btn primary">Calculate DPS</button>
+      </section>
+
+      <section class="card results">
+        <h2 class="sectionTitle">Results</h2>
+        <div class="resultGrid">
+          <div class="resultBox">
+            <p class="label">Expected DPS</p>
+            <p id="dps" class="value">—</p>
+          </div>
+          <div class="resultBox">
+            <p class="label">Crit DPS</p>
+            <p id="critDps" class="value">—</p>
+          </div>
+          <div class="resultBox">
+            <p class="label">Average Damage</p>
+            <p id="avgDmg" class="value">—</p>
+          </div>
+        </div>
+
+        <div class="help">
+          <p><b>Tip:</b> Attack speed 100% = 1 attack/sec</p>
+          <p><b>Crit:</b> Crit damage is extra damage on top of base.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
