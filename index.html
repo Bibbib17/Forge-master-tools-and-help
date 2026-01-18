@@ -2,96 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Forge Master Tools & Help</title>
+  <title>Forge Master Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system;
-      background: #0e0e0e;
-      color: #eaeaea;
-    }
-
-    header {
-      padding: 24px;
-      background: #161616;
-      text-align: center;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 2rem;
-    }
-
-    section {
-      padding: 24px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    .card {
-      background: #1c1c1c;
-      padding: 16px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 16px;
-      font-size: 0.8rem;
-      color: #888;
-    }
-
-    a {
-      color: #4da6ff;
-      text-decoration: none;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header>
-  <h1>Forge Master Tools & Help</h1>
-  <p>Fan-made tools and guides for Forge Master (Eatventure)</p>
-</header>
+  <header>
+    <h1>Forge Master Calculator</h1>
+    <p>Fan-made tool for Forge Master (Eatventure)</p>
+  </header>
 
-<section>
-  <h2>Tools</h2>
+  <main>
+    <section class="card">
+      <h2>Upgrade Cost Calculator</h2>
 
-  <div class="card">
-    <h3>Upgrade Calculator (Coming Soon)</h3>
-    <p>Estimate upgrade costs and efficiency for forging tools.</p>
-  </div>
+      <label>Current Level</label>
+      <input id="currentLevel" type="number" value="1">
 
-  <div class="card">
-    <h3>Progress Tracker (Planned)</h3>
-    <p>Track your forging progress manually.</p>
-  </div>
-</section>
+      <label>Target Level</label>
+      <input id="targetLevel" type="number" value="10">
 
-<section>
-  <h2>Help & Tips</h2>
+      <label>Base Cost</label>
+      <input id="baseCost" type="number" value="100">
 
-  <div class="card">
-    <h3>Beginner Tips</h3>
-    <p>Focus upgrades that increase speed early. Balance income and efficiency.</p>
-  </div>
+      <label>Multiplier</label>
+      <input id="multiplier" type="number" value="1.1" step="0.1">
 
-  <div class="card">
-    <h3>Mid-Game Strategy</h3>
-    <p>Prioritize upgrades with the highest long-term value.</p>
-  </div>
-</section>
+      <button id="calculateBtn">Calculate</button>
 
-<footer>
-  <p>
-    This is an unofficial fan-made site.<br>
-    Forge Master is created by Eatventure.
-  </p>
-</footer>
+      <div id="result"></div>
+    </section>
+  </main>
 
+  <footer>
+    <p>This is an unofficial fan-made site.</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
