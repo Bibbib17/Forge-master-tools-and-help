@@ -1,23 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Forge Master Shooter</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="game">
     <canvas id="canvas"></canvas>
-    <div id="ui">
-      <div id="stats">
-        <span id="hp">HP: 100</span>
-        <span id="wave">Wave: 1</span>
+
+    <div id="hud">
+      <div id="hud-left">
+        <div id="hp">HP: 100</div>
+        <div id="wave">Wave: 1</div>
+        <div id="score">Score: 0</div>
       </div>
-      <div id="controls">
-        <button id="left">◀</button>
-        <button id="shoot">●</button>
-        <button id="right">▶</button>
+
+      <div id="hud-right">
+        <button id="pause">Pause</button>
+      </div>
+    </div>
+
+    <div id="controls">
+      <div id="joystick">
+        <div id="stick"></div>
+      </div>
+      <button id="shootBtn">SHOOT</button>
+    </div>
+
+    <div id="overlay" class="hidden">
+      <div id="overlay-box">
+        <h2 id="overlay-title"></h2>
+        <p id="overlay-text"></p>
+        <button id="overlay-btn">Continue</button>
       </div>
     </div>
   </div>
