@@ -3,18 +3,41 @@ const ctx = canvas.getContext("2d");
 
 const hpText = document.getElementById("hp");
 const waveText = document.getElementById("wave");
+const scoreText = document.getElementById("score");
+const overlay = document.getElementById("overlay");
+const overlayTitle = document.getElementById("overlay-title");
+const overlayText = document.getElementById("overlay-text");
+const overlayBtn = document.getElementById("overlay-btn");
+
+const joystick = document.getElementById("joystick");
+const stick = document.getElementById("stick");
+const shootBtn = document.getElementById("shootBtn");
+const pauseBtn = document.getElementById("pause");
 
 let width, height;
-let player = { x: 0, y: 0, size: 26, speed: 6, hp: 100, dmg: 1, fireRate: 12 };
+let dt = 0;
+let last = 0;
+
+let gameState = "running"; // running, paused, wave, gameover
+
+let player = {
+  x: 0,
+  y: 0,
+  size: 28,
+  speed: 5,
+  hp: 100,
+  dmg: 1,
+  fireRate: 10,
+};
+
 let bullets = [];
 let enemies = [];
 let wave = 1;
-let enemyTimer = 0;
-let enemySpawnRate = 60;
-let waveOver = false;
-let gameOver = false;
-let upgradeOpen = false;
-let upgrades = { dmg: 0, speed: 0, hp: 0 };
+let score = 0;
+
+let shootTimer = 0;
+let joystickDir = { x: 0, y: 0 };
+let joystickActive = false;
 
 function resize() {
   width = canvas.width = window.innerWidth;
@@ -28,34 +51,56 @@ resize();
 
 function spawnWave() {
   enemies = [];
-  waveOver = false;
-  enemySpawnRate = Math.max(15, 60 - wave * 3);
   for (let i = 0; i < wave * 4; i++) {
-    enemies.push({
-      x: Math.random() * width,
-      y: -Math.random() * 200,
-      size: 22 + wave * 1.2,
-      speed: 1.2 + wave * 0.15,
-      hp: 1 + Math.floor(wave / 3),
-    });
+    enemies.push(createEnemy());
   }
 }
 
-spawnWave();
+function createEnemy() {
+  const type = Math.random() < 0.15 ? "fast" : Math.random() < 0.15 ? "tank" : "normal";
 
-let shootTimer = 0;
-
-function update() {
-  if (gameOver) {
-    drawGameOver();
-    return;
+  if (type === "fast") {
+    return {
+      x: Math.random() * width,
+      y: -Math.random() * 200,
+      size: 18,
+      speed: 2.2 + wave * 0.1,
+      hp: 1,
+      color: "orange",
+    };
   }
 
-  if (upgradeOpen) {
-    drawUpgradeScreen();
-    requestAnimationFrame(update);
-    return;
+  if (type === "tank") {
+    return {
+      x: Math.random() * width,
+      y: -Math.random() * 200,
+      size: 34,
+      speed: 1 + wave * 0.05,
+      hp: 3 + Math.floor(wave / 3),
+      color: "purple",
+    };
   }
+
+  return {
+    x: Math.random() * width,
+    y: -Math.random() * 200,
+    size: 24,
+    speed: 1.5 + wave * 0.1,
+    hp: 1 + Math.floor(wave / 4),
+    color: "red",
+  };
+}
+
+function update(delta) {
+  if (gameState !== "running") return;
+
+  // move player
+  player.x += joystickDir.x * player.speed;
+  player.y += joystickDir.y * player.speed;
+
+  // clamp
+  player.x = Math.max(20, Math.min(width - 20, player.x));
+  player.y = Math.max(60, Math.min(height - 60, player.y));
 
   // auto shoot
   shootTimer++;
@@ -64,50 +109,53 @@ function update() {
     shootTimer = 0;
   }
 
-  // update bullets
-  bullets.forEach((b, i) => {
-    b.y -= b.speed;
-    if (b.y < -10) bullets.splice(i, 1);
-  });
+  // bullets update
+  bullets = bullets.filter(b => b.y > -20);
+  bullets.forEach(b => b.y -= b.speed);
 
-  // update enemies
+  // enemies update
   enemies.forEach((e, i) => {
     e.y += e.speed;
 
-    // hit player
+    // enemy hits player
     if (Math.abs(e.x - player.x) < (e.size + player.size) / 2 && Math.abs(e.y - player.y) < (e.size + player.size) / 2) {
       enemies.splice(i, 1);
-      player.hp -= 15;
-      if (player.hp <= 0) player.hp = 0;
+      player.hp -= e.size > 25 ? 20 : 10;
     }
 
-    // bullet collision
+    // bullets hit enemy
     bullets.forEach((b, bi) => {
       if (Math.abs(e.x - b.x) < (e.size + 6) / 2 && Math.abs(e.y - b.y) < (e.size + 6) / 2) {
         e.hp -= b.dmg;
         bullets.splice(bi, 1);
-        if (e.hp <= 0) enemies.splice(i, 1);
+
+        if (e.hp <= 0) {
+          enemies.splice(i, 1);
+          score += 10;
+        }
       }
     });
   });
 
   // wave complete
   if (enemies.length === 0) {
-    wave++;
-    upgradeOpen = true;
-    return;
+    gameState = "wave";
+    overlayTitle.textContent = "Wave Complete!";
+    overlayText.textContent = "Pick an upgrade.";
+    overlay.classList.remove("hidden");
   }
 
   if (player.hp <= 0) {
-    gameOver = true;
-    return;
+    gameState = "gameover";
+    overlayTitle.textContent = "GAME OVER";
+    overlayText.textContent = `Score: ${score}`;
+    overlayBtn.textContent = "Restart";
+    overlay.classList.remove("hidden");
   }
 
-  hpText.textContent = "HP: " + player.hp;
-  waveText.textContent = "Wave: " + wave;
-
-  draw();
-  requestAnimationFrame(update);
+  hpText.textContent = `HP: ${player.hp}`;
+  waveText.textContent = `Wave: ${wave}`;
+  scoreText.textContent = `Score: ${score}`;
 }
 
 function draw() {
@@ -121,72 +169,114 @@ function draw() {
 
   // bullets
   ctx.fillStyle = "cyan";
-  bullets.forEach(b => {
-    ctx.fillRect(b.x - 3, b.y - 10, 6, 12);
-  });
+  bullets.forEach(b => ctx.fillRect(b.x - 3, b.y - 10, 6, 12));
 
   // enemies
-  ctx.fillStyle = "red";
   enemies.forEach(e => {
+    ctx.fillStyle = e.color;
     ctx.beginPath();
     ctx.arc(e.x, e.y, e.size / 2, 0, Math.PI * 2);
     ctx.fill();
   });
 }
 
-function drawUpgradeScreen() {
-  ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "white";
-  ctx.font = "32px system-ui";
-  ctx.fillText("Wave Complete!", width / 2 - 140, height / 2 - 80);
+function loop(timestamp) {
+  dt = timestamp - last;
+  last = timestamp;
 
-  ctx.font = "24px system-ui";
-  ctx.fillText("Pick one upgrade:", width / 2 - 130, height / 2 - 40);
+  update(dt);
+  draw();
 
-  ctx.fillStyle = "cyan";
-  ctx.fillText("1) Damage +1", width / 2 - 120, height / 2 + 10);
-  ctx.fillText("2) Speed +1", width / 2 - 120, height / 2 + 50);
-  ctx.fillText("3) HP +20", width / 2 - 120, height / 2 + 90);
-
-  ctx.fillStyle = "white";
-  ctx.fillText("Tap the screen to choose", width / 2 - 160, height / 2 + 150);
+  requestAnimationFrame(loop);
 }
 
-function drawGameOver() {
-  ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "white";
-  ctx.font = "48px system-ui";
-  ctx.fillText("GAME OVER", width / 2 - 170, height / 2 - 20);
-  ctx.font = "24px system-ui";
-  ctx.fillText("Refresh to play again", width / 2 - 130, height / 2 + 40);
+requestAnimationFrame(loop);
+
+function reset() {
+  player.hp = 100;
+  player.dmg = 1;
+  player.speed = 5;
+  player.fireRate = 10;
+  wave = 1;
+  score = 0;
+  bullets = [];
+  spawnWave();
+  gameState = "running";
+  overlay.classList.add("hidden");
 }
 
-update();
+function nextWave() {
+  wave++;
+  spawnWave();
+  gameState = "running";
+  overlay.classList.add("hidden");
+}
 
-document.getElementById("left").addEventListener("touchstart", () => player.x -= player.speed);
-document.getElementById("right").addEventListener("touchstart", () => player.x += player.speed);
-
-document.getElementById("shoot").addEventListener("touchstart", () => {
-  if (upgradeOpen) {
-    upgrades.dmg += 1;
-    player.dmg += 1;
-    upgradeOpen = false;
-    spawnWave();
+// pause
+pauseBtn.addEventListener("click", () => {
+  if (gameState === "running") {
+    gameState = "paused";
+    overlayTitle.textContent = "Paused";
+    overlayText.textContent = "Tap continue to resume.";
+    overlayBtn.textContent = "Continue";
+    overlay.classList.remove("hidden");
+  } else if (gameState === "paused") {
+    gameState = "running";
+    overlay.classList.add("hidden");
   }
 });
 
-document.addEventListener("touchstart", (e) => {
-  if (!upgradeOpen) return;
-
-  let y = e.touches[0].clientY;
-  if (y < height / 2 + 30) {
-    player.dmg += 1;
-  } else if (y < height / 2 + 70) {
-    player.speed += 1;
-  } else {
-    player.hp += 20;
-    if (player.hp > 100) player.hp = 100;
+// upgrades
+overlayBtn.addEventListener("click", () => {
+  if (gameState === "gameover") {
+    reset();
+    return;
   }
-  upgradeOpen = false;
-  spawnWave();
+
+  if (gameState === "paused") {
+    gameState = "running";
+    overlay.classList.add("hidden");
+    return;
+  }
+
+  // choose upgrade
+  // random upgrade
+  const choice = Math.floor(Math.random() * 3);
+  if (choice === 0) player.dmg += 1;
+  if (choice === 1) player.speed += 1;
+  if (choice === 2) player.hp = Math.min(100, player.hp + 25);
+
+  nextWave();
+});
+
+// joystick
+let startX, startY;
+
+joystick.addEventListener("touchstart", (e) => {
+  joystickActive = true;
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+});
+
+joystick.addEventListener("touchmove", (e) => {
+  if (!joystickActive) return;
+  const x = e.touches[0].clientX;
+  const y = e.touches[0].clientY;
+
+  const dx = x - startX;
+  const dy = y - startY;
+
+  const dist = Math.min(50, Math.hypot(dx, dy));
+  const angle = Math.atan2(dy, dx);
+
+  stick.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+
+  joystickDir.x = Math.cos(angle) * (dist / 50);
+  joystickDir.y = Math.sin(angle) * (dist / 50);
+});
+
+joystick.addEventListener("touchend", () => {
+  joystickActive = false;
+  joystickDir = { x: 0, y: 0 };
+  stick.style.transform = `translate(0px, 0px)`;
 });
