@@ -1,55 +1,36 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const waveText = document.getElementById("wave");
 const hpText = document.getElementById("hp");
-const upgradesText = document.getElementById("upgrades");
-
-const leftBtn = document.getElementById("left");
-const rightBtn = document.getElementById("right");
-const shootBtn = document.getElementById("shoot");
+const waveText = document.getElementById("wave");
 
 let width, height;
+let keys = { left: false, right: false, shoot: false };
+
+let player = { x: 0, y: 0, size: 24, speed: 6, hp: 100 };
+let bullets = [];
+let enemies = [];
+let wave = 1;
+let spawnTimer = 0;
+
 function resize() {
   width = canvas.width = window.innerWidth;
   height = canvas.height = window.innerHeight;
+  player.x = width / 2;
+  player.y = height - 80;
 }
+
 window.addEventListener("resize", resize);
 resize();
 
-const player = {
-  x: width / 2,
-  y: height - 80,
-  size: 25,
-  speed: 5,
-  hp: 100,
-  upgrades: 0,
-};
-
-let left = false;
-let right = false;
-let shooting = false;
-
-leftBtn.addEventListener("touchstart", () => left = true);
-leftBtn.addEventListener("touchend", () => left = false);
-rightBtn.addEventListener("touchstart", () => right = true);
-rightBtn.addEventListener("touchend", () => right = false);
-shootBtn.addEventListener("touchstart", () => shooting = true);
-shootBtn.addEventListener("touchend", () => shooting = false);
-
-const bullets = [];
-const enemies = [];
-let wave = 1;
-
 function spawnWave() {
-  const count = wave * 3;
-  for (let i = 0; i < count; i++) {
+  enemies = [];
+  for (let i = 0; i < wave * 3; i++) {
     enemies.push({
-      x: Math.random() * (width - 40) + 20,
+      x: Math.random() * width,
       y: -Math.random() * 200,
-      size: 20,
-      speed: 1 + wave * 0.2,
-      hp: 1 + Math.floor(wave / 2),
+      size: 26,
+      speed: 1.2 + wave * 0.2,
     });
   }
 }
@@ -57,87 +38,98 @@ function spawnWave() {
 spawnWave();
 
 function update() {
-  if (left) player.x -= player.speed;
-  if (right) player.x += player.speed;
-  if (player.x < player.size) player.x = player.size;
-  if (player.x > width - player.size) player.x = width - player.size;
+  // move player
+  if (keys.left) player.x -= player.speed;
+  if (keys.right) player.x += player.speed;
+  player.x = Math.max(20, Math.min(width - 20, player.x));
 
-  if (shooting && bullets.length < 6 + player.upgrades) {
-    bullets.push({ x: player.x, y: player.y - 30, speed: 8 });
+  // shoot
+  if (keys.shoot && bullets.length < 5) {
+    bullets.push({ x: player.x, y: player.y - 20, speed: 9 });
   }
 
+  // update bullets
   bullets.forEach((b, i) => {
     b.y -= b.speed;
     if (b.y < -10) bullets.splice(i, 1);
   });
 
+  // update enemies
   enemies.forEach((e, i) => {
     e.y += e.speed;
 
-    if (e.y > height) {
+    // hit player
+    if (
+      Math.abs(e.x - player.x) < (e.size + player.size) / 2 &&
+      Math.abs(e.y - player.y) < (e.size + player.size) / 2
+    ) {
       enemies.splice(i, 1);
       player.hp -= 10;
+      if (player.hp <= 0) {
+        player.hp = 0;
+      }
     }
 
+    // hit bullet
     bullets.forEach((b, bi) => {
-      if (Math.hypot(b.x - e.x, b.y - e.y) < e.size) {
-        e.hp--;
+      if (Math.abs(e.x - b.x) < (e.size + 6) / 2 && Math.abs(e.y - b.y) < (e.size + 6) / 2) {
+        enemies.splice(i, 1);
         bullets.splice(bi, 1);
-        if (e.hp <= 0) {
-          enemies.splice(i, 1);
-          player.upgrades += 1;
-        }
       }
     });
   });
 
+  // wave complete
   if (enemies.length === 0) {
     wave++;
     spawnWave();
   }
 
+  hpText.textContent = "HP: " + player.hp;
+  waveText.textContent = "Wave: " + wave;
+
   if (player.hp <= 0) {
-    player.hp = 0;
-    enemies.length = 0;
-    bullets.length = 0;
-    wave = 1;
-    player.upgrades = 0;
-    player.hp = 100;
-    spawnWave();
+    ctx.fillStyle = "white";
+    ctx.font = "48px system-ui";
+    ctx.fillText("GAME OVER", width / 2 - 150, height / 2);
+    return;
   }
 
-  waveText.innerText = "Wave: " + wave;
-  hpText.innerText = "HP: " + player.hp;
-  upgradesText.innerText = "Upgrades: " + player.upgrades;
+  draw();
+  requestAnimationFrame(update);
 }
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
+  // player
   ctx.fillStyle = "white";
   ctx.beginPath();
-  ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+  ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
   ctx.fill();
 
-  bullets.forEach((b) => {
-    ctx.fillStyle = "cyan";
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
-    ctx.fill();
+  // bullets
+  ctx.fillStyle = "cyan";
+  bullets.forEach(b => {
+    ctx.fillRect(b.x - 3, b.y - 10, 6, 12);
   });
 
-  enemies.forEach((e) => {
-    ctx.fillStyle = "red";
+  // enemies
+  ctx.fillStyle = "red";
+  enemies.forEach(e => {
     ctx.beginPath();
-    ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+    ctx.arc(e.x, e.y, e.size / 2, 0, Math.PI * 2);
     ctx.fill();
   });
 }
 
-function loop() {
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
+update();
 
-loop();
+document.getElementById("left").addEventListener("touchstart", () => keys.left = true);
+document.getElementById("left").addEventListener("touchend", () => keys.left = false);
+
+document.getElementById("right").addEventListener("touchstart", () => keys.right = true);
+document.getElementById("right").addEventListener("touchend", () => keys.right = false);
+
+document.getElementById("shoot").addEventListener("touchstart", () => keys.shoot = true);
+document.getElementById("shoot").addEventListener("touchend", () => keys.shoot = false);
