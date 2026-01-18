@@ -1,43 +1,479 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Forge Master Shooter</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Calculator</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #141a22;
+    --text: #e9edf2;
+    --muted: #a7b1bf;
+    --accent: #4da6ff;
+    --danger: #ff4d4d;
+    --btn: #1c2430;
+    --btn2: #232f3d;
+    --btnHover: #2a3b4c;
+  }
+
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 18px;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+    margin: 0;
+  }
+
+  header button {
+    background: var(--btn);
+    border: none;
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  header button:hover {
+    background: var(--btnHover);
+  }
+
+  .screen {
+    background: var(--panel);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .display {
+    font-size: 2.2rem;
+    text-align: right;
+    padding: 10px 8px;
+    word-break: break-all;
+  }
+
+  .subdisplay {
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .input-area {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .input-area input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #2a3445;
+    background: #0e1320;
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .input-area button {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    background: var(--btn);
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  button.calc-btn {
+    background: var(--btn);
+    border: none;
+    border-radius: 12px;
+    padding: 18px 0;
+    font-size: 1.1rem;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  button.calc-btn:hover {
+    background: var(--btnHover);
+  }
+
+  .wide {
+    grid-column: span 2;
+  }
+
+  .danger {
+    background: var(--danger);
+  }
+
+  .panel {
+    margin-top: 14px;
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .panel h3 {
+    margin: 0 0 10px 0;
+  }
+
+  .panel textarea {
+    width: 100%;
+    background: #0e1320;
+    border: 1px solid #2a3445;
+    color: var(--text);
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 90px;
+  }
+
+  .graph {
+    height: 250px;
+    background: #0a0d12;
+    border: 1px solid #2a3445;
+    border-radius: 12px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .graph canvas {
+    width: 100%;
+    height: 100%;
+  }
+</style>
 </head>
 <body>
-  <div id="game">
-    <canvas id="canvas"></canvas>
+<div class="app">
+  <header>
+    <h1>Ultimate Calculator</h1>
+    <button id="darkMode">Dark Mode</button>
+  </header>
 
-    <div id="hud">
-      <div id="hud-left">
-        <div id="hp">HP: 100</div>
-        <div id="wave">Wave: 1</div>
-        <div id="score">Score: 0</div>
-      </div>
-
-      <div id="hud-right">
-        <button id="pause">Pause</button>
-      </div>
-    </div>
-
-    <div id="controls">
-      <div id="joystick">
-        <div id="stick"></div>
-      </div>
-      <button id="shootBtn">SHOOT</button>
-    </div>
-
-    <div id="overlay" class="hidden">
-      <div id="overlay-box">
-        <h2 id="overlay-title"></h2>
-        <p id="overlay-text"></p>
-        <button id="overlay-btn">Continue</button>
-      </div>
+  <div class="screen">
+    <div class="subdisplay" id="subdisplay"></div>
+    <div class="display" id="display">0</div>
+    <div class="input-area">
+      <input id="expr" placeholder="Type equation (ex: 2+2 or sin(30) + sqrt(9))">
+      <button id="eval">Calculate</button>
     </div>
   </div>
 
-  <script src="game.js"></script>
+  <div class="tabs">
+    <div class="tab active" data-tab="calc">Calculator</div>
+    <div class="tab" data-tab="graph">Graph</div>
+    <div class="tab" data-tab="units">Units</div>
+    <div class="tab" data-tab="stats">Stats</div>
+  </div>
+
+  <div class="panel" id="calcPanel">
+    <div class="grid">
+      <button class="calc-btn" data-val="7">7</button>
+      <button class="calc-btn" data-val="8">8</button>
+      <button class="calc-btn" data-val="9">9</button>
+      <button class="calc-btn danger" data-val="C">C</button>
+
+      <button class="calc-btn" data-val="4">4</button>
+      <button class="calc-btn" data-val="5">5</button>
+      <button class="calc-btn" data-val="6">6</button>
+      <button class="calc-btn" data-val="/">÷</button>
+
+      <button class="calc-btn" data-val="1">1</button>
+      <button class="calc-btn" data-val="2">2</button>
+      <button class="calc-btn" data-val="3">3</button>
+      <button class="calc-btn" data-val="*">×</button>
+
+      <button class="calc-btn" data-val="0">0</button>
+      <button class="calc-btn" data-val=".">.</button>
+      <button class="calc-btn" data-val="(">(</button>
+      <button class="calc-btn" data-val=")">)</button>
+
+      <button class="calc-btn wide" data-val="ans">Ans</button>
+      <button class="calc-btn" data-val="^">^</button>
+      <button class="calc-btn" data-val="=">=</button>
+
+      <button class="calc-btn" data-val="sqrt(">√</button>
+      <button class="calc-btn" data-val="log10(">log</button>
+      <button class="calc-btn" data-val="ln(">ln</button>
+      <button class="calc-btn" data-val="!">!</button>
+
+      <button class="calc-btn" data-val="sin(">sin</button>
+      <button class="calc-btn" data-val="cos(">cos</button>
+      <button class="calc-btn" data-val="tan(">tan</button>
+      <button class="calc-btn" data-val="pi">π</button>
+
+      <button class="calc-btn" data-val="asin(">asin</button>
+      <button class="calc-btn" data-val="acos(">acos</button>
+      <button class="calc-btn" data-val="atan(">atan</button>
+      <button class="calc-btn" data-val="e">e</button>
+    </div>
+
+    <div class="panel">
+      <h3>History</h3>
+      <textarea id="history" readonly></textarea>
+    </div>
+  </div>
+
+  <div class="panel" id="graphPanel" style="display:none;">
+    <h3>Graphing</h3>
+    <input id="graphExpr" placeholder="Type function like: sin(x) or x^2 - 4">
+    <button id="graphBtn">Graph</button>
+    <div class="graph">
+      <canvas id="graphCanvas"></canvas>
+    </div>
+  </div>
+
+  <div class="panel" id="unitsPanel" style="display:none;">
+    <h3>Unit Converter</h3>
+    <input id="unitExpr" placeholder="Type conversion like: 5 km to mi">
+    <button id="unitBtn">Convert</button>
+    <div class="subdisplay" id="unitResult"></div>
+  </div>
+
+  <div class="panel" id="statsPanel" style="display:none;">
+    <h3>Stats Mode</h3>
+    <input id="statsInput" placeholder="Enter numbers separated by commas (ex: 1,2,3,4)">
+    <button id="statsBtn">Calculate</button>
+    <div class="subdisplay" id="statsResult"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+<script>
+  const display = document.getElementById("display");
+  const subdisplay = document.getElementById("subdisplay");
+  const expr = document.getElementById("expr");
+  const evalBtn = document.getElementById("eval");
+  const history = document.getElementById("history");
+  let ans = 0;
+
+  const tabs = document.querySelectorAll(".tab");
+  const calcPanel = document.getElementById("calcPanel");
+  const graphPanel = document.getElementById("graphPanel");
+  const unitsPanel = document.getElementById("unitsPanel");
+  const statsPanel = document.getElementById("statsPanel");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      calcPanel.style.display = "none";
+      graphPanel.style.display = "none";
+      unitsPanel.style.display = "none";
+      statsPanel.style.display = "none";
+
+      if (tab.dataset.tab === "calc") calcPanel.style.display = "block";
+      if (tab.dataset.tab === "graph") graphPanel.style.display = "block";
+      if (tab.dataset.tab === "units") unitsPanel.style.display = "block";
+      if (tab.dataset.tab === "stats") statsPanel.style.display = "block";
+    });
+  });
+
+  document.querySelectorAll(".calc-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const val = btn.dataset.val;
+      if (val === "C") {
+        display.textContent = "0";
+        subdisplay.textContent = "";
+        expr.value = "";
+        return;
+      }
+      if (val === "=") {
+        evaluate();
+        return;
+      }
+      if (val === "ans") {
+        expr.value += ans;
+        return;
+      }
+      expr.value += val;
+    });
+  });
+
+  function evaluate() {
+    try {
+      const input = expr.value;
+      const result = math.evaluate(input);
+      ans = result;
+      display.textContent = result;
+      subdisplay.textContent = input;
+
+      history.value += `${input} = ${result}\n`;
+    } catch (e) {
+      display.textContent = "Error";
+      subdisplay.textContent = "";
+    }
+  }
+
+  evalBtn.addEventListener("click", evaluate);
+
+  expr.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") evaluate();
+  });
+
+  // Dark mode
+  const darkBtn = document.getElementById("darkMode");
+  darkBtn.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+    if (document.body.classList.contains("light")) {
+      document.documentElement.style.setProperty("--bg", "#f3f4f6");
+      document.documentElement.style.setProperty("--panel", "#ffffff");
+      document.documentElement.style.setProperty("--text", "#111827");
+      document.documentElement.style.setProperty("--muted", "#6b7280");
+      document.documentElement.style.setProperty("--btn", "#e5e7eb");
+      document.documentElement.style.setProperty("--btn2", "#d1d5db");
+      document.documentElement.style.setProperty("--btnHover", "#c7d2fe");
+      document.documentElement.style.setProperty("--accent", "#2563eb");
+    } else {
+      document.documentElement.style.setProperty("--bg", "#0b0d12");
+      document.documentElement.style.setProperty("--panel", "#141a22");
+      document.documentElement.style.setProperty("--text", "#e9edf2");
+      document.documentElement.style.setProperty("--muted", "#a7b1bf");
+      document.documentElement.style.setProperty("--btn", "#1c2430");
+      document.documentElement.style.setProperty("--btn2", "#232f3d");
+      document.documentElement.style.setProperty("--btnHover", "#2a3b4c");
+      document.documentElement.style.setProperty("--accent", "#4da6ff");
+    }
+  });
+
+  // Graphing
+  const graphBtn = document.getElementById("graphBtn");
+  const graphCanvas = document.getElementById("graphCanvas");
+  const ctx = graphCanvas.getContext("2d");
+
+  function drawGraph(exprText) {
+    const width = graphCanvas.clientWidth;
+    const height = graphCanvas.clientHeight;
+    graphCanvas.width = width;
+    graphCanvas.height = height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // grid
+    ctx.strokeStyle = "#2a3445";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < width; i += 20) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i, height);
+      ctx.stroke();
+    }
+    for (let i = 0; i < height; i += 20) {
+      ctx.beginPath();
+      ctx.moveTo(0, i);
+      ctx.lineTo(width, i);
+      ctx.stroke();
+    }
+
+    // axes
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(width / 2, 0);
+    ctx.lineTo(width / 2, height);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, height / 2);
+    ctx.lineTo(width, height / 2);
+    ctx.stroke();
+
+    // function
+    ctx.strokeStyle = "#4da6ff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const scale = 20;
+
+    for (let x = -width / 2; x < width / 2; x += 1) {
+      const realX = x / scale;
+      let y;
+      try {
+        y = math.evaluate(exprText.replaceAll("x", `(${realX})`));
+      } catch (e) {
+        return;
+      }
+      const screenY = height / 2 - y * scale;
+
+      if (x === -width / 2) ctx.moveTo(x + width / 2, screenY);
+      else ctx.lineTo(x + width / 2, screenY);
+    }
+    ctx.stroke();
+  }
+
+  graphBtn.addEventListener("click", () => {
+    const input = document.getElementById("graphExpr").value;
+    drawGraph(input);
+  });
+
+  // Units
+  const unitBtn = document.getElementById("unitBtn");
+  unitBtn.addEventListener("click", () => {
+    const input = document.getElementById("unitExpr").value;
+    try {
+      const result = math.evaluate(input);
+      document.getElementById("unitResult").textContent = result.toString();
+    } catch {
+      document.getElementById("unitResult").textContent = "Invalid conversion";
+    }
+  });
+
+  // Stats
+  const statsBtn = document.getElementById("statsBtn");
+  statsBtn.addEventListener("click", () => {
+    const input = document.getElementById("statsInput").value;
+    const nums = input.split(",").map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+    if (!nums.length) return;
+
+    const mean = math.mean(nums);
+    const median = math.median(nums);
+    const std = math.std(nums);
+
+    document.getElementById("statsResult").innerHTML =
+      `Mean: ${mean}<br>Median: ${median}<br>Std Dev: ${std}`;
+  });
+</script>
 </body>
 </html>
