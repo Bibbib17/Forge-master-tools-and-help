@@ -1,14 +1,15 @@
 body {
   margin: 0;
-  overflow: hidden;
+  background: #0a0a0a;
+  color: #fff;
   font-family: system-ui, -apple-system;
-  background: #000;
 }
 
 #game {
   position: relative;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 }
 
 canvas {
@@ -17,29 +18,32 @@ canvas {
   display: block;
 }
 
-#hud {
+#ui {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  color: white;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+#stats {
   font-size: 16px;
 }
 
 #controls {
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
   display: flex;
-  justify-content: center;
   gap: 10px;
 }
 
 #controls button {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
+  width: 60px;
+  height: 60px;
   border: none;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 30px;
+  border-radius: 10px;
+  background: #222;
+  color: #fff;
+  font-size: 24px;
 }
