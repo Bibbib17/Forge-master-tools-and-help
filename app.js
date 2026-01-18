@@ -4,50 +4,83 @@ const critChance = document.getElementById("critChance");
 const critDamage = document.getElementById("critDamage");
 const doubleChance = document.getElementById("doubleChance");
 
-const dpsEl = document.getElementById("dps");
-const critDpsEl = document.getElementById("critDps");
-const avgDmgEl = document.getElementById("avgDmg");
-
-const calcBtn = document.getElementById("calcBtn");
+const dpsResult = document.getElementById("dpsResult");
+const hitTime = document.getElementById("hitTime");
+const notes = document.getElementById("notes");
+const resetBtn = document.getElementById("resetBtn");
 const themeBtn = document.getElementById("themeBtn");
 
-function clamp(v, min, max) {
-  return Math.max(min, Math.min(max, v));
-}
+const speedTable = [
+  {max: 0, time: 1.7},
+  {max: 7.1, time: 1.6},
+  {max: 15.4, time: 1.5},
+  {max: 25, time: 1.4},
+  {max: 36.4, time: 1.3},
+  {max: 50, time: 1.2},
+  {max: 66.7, time: 1.1},
+  {max: 87.5, time: 1.0},
+  {max: 114, time: 0.9},
+  {max: 150, time: 0.8},
+  {max: 200, time: 0.7},
+  {max: 275, time: 0.6},
+  {max: 400, time: 0.5},
+  {max: Infinity, time: 0.4},
+];
 
-function calculate() {
-  const dmg = Number(damage.value || 0);
-  const speed = Number(atkSpeed.value || 0) / 100;
-  const crit = clamp(Number(critChance.value || 0) / 100, 0, 1);
-  const critDmg = clamp(Number(critDamage.value || 0) / 100, 0, 10);
-  const dbl = clamp(Number(doubleChance.value || 0) / 100, 0, 1);
-
-  if (!dmg || !speed) {
-    dpsEl.textContent = "—";
-    critDpsEl.textContent = "—";
-    avgDmgEl.textContent = "—";
-    return;
+function getHitTime(as){
+  for (let i=0; i<speedTable.length; i++){
+    if (as <= speedTable[i].max) return speedTable[i].time;
   }
-
-  const baseDmg = dmg * speed;
-  const expectedCrit = baseDmg * crit * critDmg;
-  const expectedDouble = baseDmg * dbl;
-
-  const avgDmg = baseDmg + expectedCrit + expectedDouble;
-  const dps = avgDmg;
-  const critDps = baseDmg + expectedCrit;
-
-  dpsEl.textContent = dps.toFixed(2);
-  critDpsEl.textContent = critDps.toFixed(2);
-  avgDmgEl.textContent = avgDmg.toFixed(2);
+  return 1.7;
 }
 
-calcBtn.addEventListener("click", calculate);
+function calculate(){
+  const dmg = parseFloat(damage.value) || 0;
+  const as = parseFloat(atkSpeed.value) || 0;
+  const cc = parseFloat(critChance.value) || 0;
+  const cd = parseFloat(critDamage.value) || 0;
+  const dc = parseFloat(doubleChance.value) || 0;
 
-themeBtn.addEventListener("click", () => {
-  const current = document.documentElement.getAttribute("data-theme");
-  document.documentElement.setAttribute("data-theme", current === "light" ? "dark" : "light");
-});
+  const ht = getHitTime(as);
 
-// Default theme
-document.documentElement.setAttribute("data-theme", "dark");
+  // base DPS
+  const baseDPS = dmg / ht;
+
+  // crit multiplier
+  const critMult = (cc / 100) * (cd / 100);
+
+  // double multiplier
+  const doubleMult = dc / 100;
+
+  // final DPS
+  const finalDPS = baseDPS * (1 + critMult + doubleMult);
+
+  dpsResult.textContent = `DPS: ${finalDPS.toFixed(2)}`;
+  hitTime.textContent = `Hit Time: ${ht.toFixed(2)}s`;
+}
+
+function reset(){
+  damage.value = "";
+  atkSpeed.value = "";
+  critChance.value = "";
+  critDamage.value = "";
+  doubleChance.value = "";
+  dpsResult.textContent = "DPS: —";
+  hitTime.textContent = "Hit Time: —";
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("light");
+  themeBtn.textContent = document.body.classList.contains("light") ? "🌞" : "🌙";
+}
+
+damage.addEventListener("input", calculate);
+atkSpeed.addEventListener("input", calculate);
+critChance.addEventListener("input", calculate);
+critDamage.addEventListener("input", calculate);
+doubleChance.addEventListener("input", calculate);
+
+resetBtn.addEventListener("click", reset);
+themeBtn.addEventListener("click", toggleTheme);
+
+calculate();
