@@ -1,0 +1,184 @@
+:root {
+  --bg: #0b0d12;
+  --panel: #141a22;
+  --text: #e9edf2;
+  --muted: #a7b1bf;
+  --accent: #4da6ff;
+  --danger: #ff4d4d;
+  --btn: #1c2430;
+  --btnHover: #2a3b4c;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+header button {
+  background: var(--btn);
+  border: none;
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--btn);
+  text-align: center;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.screen {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+#display {
+  font-size: 2.2rem;
+  text-align: right;
+  padding: 10px 8px;
+  word-break: break-all;
+}
+
+#subdisplay {
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.inputArea {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.inputArea input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #2a3445;
+  background: #0e1320;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.inputArea button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+button.calc-btn {
+  background: var(--btn);
+  border: none;
+  border-radius: 12px;
+  padding: 18px 0;
+  font-size: 1.1rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+button.calc-btn:hover {
+  background: var(--btnHover);
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+.danger {
+  background: var(--danger);
+}
+
+.panel {
+  margin-top: 14px;
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.panel textarea {
+  width: 100%;
+  background: #0e1320;
+  border: 1px solid #2a3445;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 90px;
+}
+
+.graph {
+  height: 260px;
+  background: #0a0d12;
+  border: 1px solid #2a3445;
+  border-radius: 12px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContent {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 18px;
+  width: 90%;
+  max-width: 450px;
+}
+
+.helpText {
+  margin-top: 12px;
+  color: var(--muted);
+}
