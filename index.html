@@ -2,43 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Forge Master Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wave Shooter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="game">
+    <canvas id="canvas"></canvas>
+    <div id="hud">
+      <div id="wave">Wave: 1</div>
+      <div id="hp">HP: 100</div>
+      <div id="upgrades">Upgrades: 0</div>
+    </div>
+    <div id="controls">
+      <button id="left">◀</button>
+      <button id="shoot">●</button>
+      <button id="right">▶</button>
+    </div>
+  </div>
 
-  <header>
-    <h1>Forge Master Calculator</h1>
-    <p>Fan-made tool for Forge Master (Eatventure)</p>
-  </header>
-
-  <main>
-    <section class="card">
-      <h2>Upgrade Cost Calculator</h2>
-
-      <label>Current Level</label>
-      <input id="currentLevel" type="number" value="1">
-
-      <label>Target Level</label>
-      <input id="targetLevel" type="number" value="10">
-
-      <label>Base Cost</label>
-      <input id="baseCost" type="number" value="100">
-
-      <label>Multiplier</label>
-      <input id="multiplier" type="number" value="1.1" step="0.1">
-
-      <button id="calculateBtn">Calculate</button>
-
-      <div id="result"></div>
-    </section>
-  </main>
-
-  <footer>
-    <p>This is an unofficial fan-made site.</p>
-  </footer>
-
-  <script src="script.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
